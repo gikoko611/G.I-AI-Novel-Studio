@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "G.I AI Novel Studio",
+  "short_name": "G.I Novel",
+  "description": "Create your own worlds with AI",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050907",
+  "theme_color": "#050907",
+  "icons": [
+    {
+      "src": "/icons/gi-novel-icon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
