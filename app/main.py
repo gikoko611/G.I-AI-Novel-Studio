@@ -1,5 +1,6 @@
 import asyncio
 import re
+import logging
 import uuid
 from pathlib import Path
 from typing import Literal, Optional
@@ -12,6 +13,8 @@ from .config import (
 )
 from .db import init_db, connect, now, rowdict, novel_with_chapters
 from .providers import generate_text, ProviderError
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="G.I AI Novel Studio API", version="1.0.0")
 app.add_middleware(
@@ -237,6 +240,7 @@ async def generate_chapters(
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Unexpected generation error for novel_id=%s", novel_id)
         with connect() as con:
             con.execute("UPDATE novels SET status='paused_error',last_error=?,updated_at=? WHERE id=?",
                         (str(e)[:1500], now(), novel_id))
