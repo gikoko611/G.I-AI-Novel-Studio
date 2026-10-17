@@ -6,12 +6,6 @@ from typing import Literal, Optional
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER
-from reportlab.lib.units import mm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-from xml.sax.saxutils import escape
 
 from .config import (
     AI_PROVIDER, AI_MODEL, GEMINI_MODEL, OUTPUT_DIR, MAX_CHAPTERS_PER_REQUEST
@@ -111,8 +105,14 @@ def get_novel(novel_id: str):
     return novel
 
 @app.post("/api/novels/{novel_id}/generate")
-async def generate_chapters(novel_id: str, payload: GenerateRequest,
-                            idempotency_key: Optional[str] = Header(default=None, alias="Idempotency-Key")):
+async def generate_chapters(
+    novel_id: str,
+    payload: GenerateRequest,
+    idempotency_key: Optional[str] = Header(default=None, alias="Idempotency-Key"),
+    api_key: Optional[str] = Header(default=None, alias="X-AI-API-Key"),
+    gemini_api_key: Optional[str] = Header(default=None, alias="X-Gemini-API-Key"),
+    ai_base_url: Optional[str] = Header(default=None, alias="X-AI-Base-URL"),
+):
     # One request generates sequentially; default is one chapter to limit spend.
     requested = min(payload.chapters, MAX_CHAPTERS_PER_REQUEST)
     novel = novel_with_chapters(novel_id)
@@ -158,7 +158,14 @@ async def generate_chapters(novel_id: str, payload: GenerateRequest,
                 continue
 
             try:
-                text = await generate_text(chapter_prompt(novel, chapter_no, novel["chapters"]))
+                text = await generate_text(
+                    chapter_prompt(novel, chapter_no, novel["chapters"]),
+                    provider=novel["provider"],
+                    model=novel["model"],
+                    base_url=ai_base_url,
+                    api_key=api_key,
+                    gemini_api_key=gemini_api_key,
+                )
             except ProviderError as e:
                 status = "paused_quota" if e.quota else "paused_error"
                 with connect() as con:
@@ -210,8 +217,14 @@ async def generate_chapters(novel_id: str, payload: GenerateRequest,
         raise HTTPException(500, "Generation error ဖြစ်သွားသည်။ သိမ်းပြီးသားအခန်းများ မဖျက်ပါ။")
 
 @app.post("/api/novels/{novel_id}/resume")
-async def resume_novel(novel_id: str, payload: GenerateRequest = GenerateRequest(),
-                       idempotency_key: Optional[str] = Header(default=None, alias="Idempotency-Key")):
+async def resume_novel(
+    novel_id: str,
+    payload: GenerateRequest = GenerateRequest(),
+    idempotency_key: Optional[str] = Header(default=None, alias="Idempotency-Key"),
+    api_key: Optional[str] = Header(default=None, alias="X-AI-API-Key"),
+    gemini_api_key: Optional[str] = Header(default=None, alias="X-Gemini-API-Key"),
+    ai_base_url: Optional[str] = Header(default=None, alias="X-AI-Base-URL"),
+):
     novel = novel_with_chapters(novel_id)
     if not novel:
         raise HTTPException(404, "Novel မတွေ့ပါ။")
@@ -222,7 +235,9 @@ async def resume_novel(novel_id: str, payload: GenerateRequest = GenerateRequest
     # Resume simply re-enters the same checkpoint-aware generator.
     with connect() as con:
         con.execute("UPDATE novels SET status='ready',last_error=NULL,updated_at=? WHERE id=?", (now(), novel_id))
-    return await generate_chapters(novel_id, payload, idempotency_key)
+    return await generate_chapters(
+        novel_id, payload, idempotency_key, api_key, gemini_api_key, ai_base_url
+    )
 
 @app.get("/api/novels/{novel_id}/chapters/{chapter_no}")
 def get_chapter(novel_id: str, chapter_no: int):
@@ -239,32 +254,10 @@ def pdf_escape(text):
 
 @app.get("/api/novels/{novel_id}/export/pdf")
 def export_pdf(novel_id: str):
-    novel = novel_with_chapters(novel_id)
-    if not novel:
-        raise HTTPException(404, "Novel မတွေ့ပါ။")
-    if not novel["chapters"]:
-        raise HTTPException(400, "PDF ထုတ်ရန် သိမ်းထားသောအခန်း မရှိသေးပါ။")
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUTPUT_DIR / f"{novel_id}-partial.pdf"
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle("NovelTitle", parent=styles["Title"], alignment=TA_CENTER, spaceAfter=18)
-    chapter_style = ParagraphStyle("Chapter", parent=styles["Heading2"], spaceBefore=10, spaceAfter=10)
-    body_style = ParagraphStyle("NovelBody", parent=styles["BodyText"], leading=16, spaceAfter=8)
-    story = [Paragraph(escape(novel["title"]), title_style),
-             Paragraph(f"သိမ်းဆည်းပြီးသောအခန်း {len(novel['chapters'])}/{novel['target_chapters']}", styles["Italic"]),
-             Spacer(1, 8*mm)]
-    for i, ch in enumerate(novel["chapters"]):
-        story.append(Paragraph(escape(ch["title"]), chapter_style))
-        # ReportLab built-in fonts do not reliably render Myanmar glyphs.
-        # Set MYANMAR_FONT_PATH to a TTF/OTF font to embed a Myanmar-capable font.
-        story.append(Paragraph(pdf_escape(ch["content"]), body_style))
-        if i != len(novel["chapters"]) - 1:
-            story.append(PageBreak())
-    doc = SimpleDocTemplate(str(path), pagesize=A4, rightMargin=20*mm, leftMargin=20*mm,
-                            topMargin=18*mm, bottomMargin=18*mm, title=novel["title"])
-    doc.build(story)
-    from fastapi.responses import FileResponse
-    return FileResponse(path, media_type="application/pdf", filename=f"{novel['title']}-partial.pdf")
+    raise HTTPException(
+        status_code=501,
+        detail="PDF export ကို ယာယီပိတ်ထားသည်။ ReportLab မတပ်ဆင်ထားပါ။"
+    )
 
 @app.get("/api/novels/{novel_id}/export/mp3")
 async def export_mp3(novel_id: str, voice: str = "my-MM-NilarNeural"):
@@ -296,3 +289,11 @@ def delete_novel(novel_id: str):
         if result.rowcount == 0:
             raise HTTPException(404, "Novel မတွေ့ပါ။")
     return {"ok": True, "deleted": novel_id}
+
+
+# Serve the static frontend only after registering all API routes.
+from fastapi.staticfiles import StaticFiles
+
+_FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+if _FRONTEND_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=str(_FRONTEND_DIR), html=True), name="frontend")

@@ -4,11 +4,13 @@ from .config import (
     GEMINI_API_KEY, GEMINI_MODEL
 )
 
+
 class ProviderError(Exception):
     def __init__(self, message, quota=False, retryable=False):
         super().__init__(message)
         self.quota = quota
         self.retryable = retryable
+
 
 def _quota_error(status, body):
     text = (body or "").lower()
@@ -17,64 +19,112 @@ def _quota_error(status, body):
         "billing hard limit", "rate limit reached"
     ))
 
-async def generate_text(prompt: str) -> str:
-    provider = AI_PROVIDER
+
+async def generate_text(
+    prompt: str,
+    provider: str | None = None,
+    model: str | None = None,
+    base_url: str | None = None,
+    api_key: str | None = None,
+    gemini_api_key: str | None = None,
+) -> str:
+    provider = (provider or AI_PROVIDER).strip().lower()
+
     if provider == "gemini":
-        if not GEMINI_API_KEY:
-            raise ProviderError("GEMINI_API_KEY မသတ်မှတ်ရသေးပါ။")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+        key = gemini_api_key or api_key or GEMINI_API_KEY
+        chosen_model = model or GEMINI_MODEL
+        if not key:
+            raise ProviderError("Gemini API Key မသတ်မှတ်ရသေးပါ။")
+
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{chosen_model}:generateContent"
+        )
         try:
             async with httpx.AsyncClient(timeout=120) as client:
                 r = await client.post(
-                    url, params={"key": GEMINI_API_KEY},
-                    json={"contents": [{"parts": [{"text": prompt}]}],
-                          "generationConfig": {"temperature": 0.8}}
+                    url,
+                    params={"key": key},
+                    json={
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "generationConfig": {"temperature": 0.8},
+                    },
                 )
         except httpx.HTTPError as e:
-            raise ProviderError(f"Gemini network error: {e}", retryable=True) from e
+            raise ProviderError(
+                f"Gemini network error: {e}", retryable=True
+            ) from e
+
         if r.status_code >= 400:
             body = r.text[:1000]
-            raise ProviderError(f"Gemini HTTP {r.status_code}: {body}",
-                                quota=_quota_error(r.status_code, body),
-                                retryable=r.status_code >= 500)
-        data = r.json()
+            raise ProviderError(
+                f"Gemini HTTP {r.status_code}: {body}",
+                quota=_quota_error(r.status_code, body),
+                retryable=r.status_code >= 500,
+            )
+
         try:
+            data = r.json()
             return data["candidates"][0]["content"]["parts"][0]["text"].strip()
         except (KeyError, IndexError, TypeError):
-            raise ProviderError("Gemini မှ စာသားမရရှိပါ။ Response structure ကိုစစ်ပါ။")
+            raise ProviderError(
+                "Gemini မှ စာသားမရရှိပါ။ Response structure ကိုစစ်ပါ။"
+            )
 
     if provider != "openai_compatible":
-        raise ProviderError("AI_PROVIDER သည် openai_compatible သို့မဟုတ် gemini ဖြစ်ရပါမည်။")
-    if not AI_API_KEY:
-        raise ProviderError("AI_API_KEY မသတ်မှတ်ရသေးပါ။")
-    url = f"{AI_BASE_URL}/chat/completions"
+        raise ProviderError(
+            "Provider သည် openai_compatible သို့မဟုတ် gemini ဖြစ်ရပါမည်။"
+        )
+
+    key = api_key or AI_API_KEY
+    chosen_model = model or AI_MODEL
+    chosen_base_url = (base_url or AI_BASE_URL).strip().rstrip("/")
+
+    if not key:
+        raise ProviderError("AI API Key မသတ်မှတ်ရသေးပါ။")
+    if not chosen_base_url.startswith("https://"):
+        raise ProviderError("API Base URL သည် HTTPS ဖြစ်ရပါမည်။")
+
+    url = f"{chosen_base_url}/chat/completions"
     try:
         async with httpx.AsyncClient(timeout=180) as client:
             r = await client.post(
                 url,
-                headers={"Authorization": f"Bearer {AI_API_KEY}"},
+                headers={"Authorization": f"Bearer {key}"},
                 json={
-                    "model": AI_MODEL,
+                    "model": chosen_model,
                     "messages": [
-                        {"role": "system", "content": (
-                            "You are a professional novelist. Write original, coherent Burmese prose. "
-                            "Follow the chapter brief, maintain continuity, and output only the chapter "
-                            "title on the first line followed by the chapter text. Do not summarize."
-                        )},
-                        {"role": "user", "content": prompt}
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are a professional novelist. Write original, "
+                                "coherent Burmese prose. Follow the chapter brief, "
+                                "maintain continuity, and output only the chapter "
+                                "title on the first line followed by the chapter text. "
+                                "Do not summarize."
+                            ),
+                        },
+                        {"role": "user", "content": prompt},
                     ],
-                    "temperature": 0.8
-                }
+                    "temperature": 0.8,
+                },
             )
     except httpx.HTTPError as e:
-        raise ProviderError(f"AI network error: {e}", retryable=True) from e
+        raise ProviderError(
+            f"AI network error: {e}", retryable=True
+        ) from e
+
     if r.status_code >= 400:
         body = r.text[:1000]
-        raise ProviderError(f"AI HTTP {r.status_code}: {body}",
-                            quota=_quota_error(r.status_code, body),
-                            retryable=r.status_code >= 500)
-    data = r.json()
+        raise ProviderError(
+            f"AI HTTP {r.status_code}: {body}",
+            quota=_quota_error(r.status_code, body),
+            retryable=r.status_code >= 500,
+        )
+
     try:
-        return data["choices"][0]["message"]["content"].strip()
+        return r.json()["choices"][0]["message"]["content"].strip()
     except (KeyError, IndexError, TypeError):
-        raise ProviderError("AI provider မှ စာသားမရရှိပါ။ Response structure ကိုစစ်ပါ။")
+        raise ProviderError(
+            "AI provider မှ စာသားမရရှိပါ။ Response structure ကိုစစ်ပါ။"
+        )

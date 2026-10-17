@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050907">
+  <meta name="description" content="G.I AI Novel Studio — Create your own worlds with AI">
+  <title>G.I AI Novel Studio</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <button class="brand" data-page="home" aria-label="Home">
+      <span class="brand-mark">G<span>.</span>I</span>
+      <span class="brand-copy">
+        <strong>G.I NOVEL STUDIO</strong>
+        <small>YOUR STORIES · YOUR WORLDS</small>
+      </span>
+    </button>
+    <button id="settingsShortcut" class="icon-button" aria-label="Settings" title="AI Settings">⚙</button>
+  </header>
+
+  <nav class="nav-tabs" aria-label="Main navigation">
+    <button class="nav-btn active" data-page="home">⌂ <span>Home</span></button>
+    <button class="nav-btn" data-page="library">▤ <span>My Novels</span></button>
+    <button class="nav-btn" data-page="settings">⚙ <span>Settings</span></button>
+  </nav>
+
+  <main>
+    <section id="page-home" class="page active">
+      <section class="hero forest-scene">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <span class="eyebrow"><span class="live-dot"></span> YOUR AI WRITING SANCTUARY</span>
+          <h1>သင့်စိတ်ကူးကမ္ဘာကို<br><em>အသက်သွင်းပါ။</em></h1>
+          <p>သင့်စိတ်ကူး၊ သင့်ရေးဟန်၊ သင့်ဇာတ်လမ်း။ AI နဲ့ ကိုယ်ပိုင်ဝတ္ထုကမ္ဘာကို ဖန်တီးလိုက်ပါ။</p>
+          <button class="primary-btn" id="startWriting">✦ ဝတ္ထုအသစ် စတင်ဖန်တီးမည် <span>↗</span></button>
+          <div class="hero-foot"><span>✧ Burmese-first writing</span><span>✧ Chapter by chapter</span></div>
+        </div>
+        <div class="orb orb-a"></div><div class="orb orb-b"></div>
+      </section>
+
+      <section class="stats-grid">
+        <article class="stat-card"><span class="stat-icon">▤</span><small>သိမ်းထားသောဝတ္ထု</small><strong id="statNovels">—</strong></article>
+        <article class="stat-card"><span class="stat-icon">✧</span><small>ရေးပြီးသောအခန်း</small><strong id="statChapters">—</strong></article>
+        <article class="stat-card"><span class="stat-icon">◈</span><small>AI Provider</small><strong id="statProvider">—</strong></article>
+      </section>
+
+      <section class="section-heading">
+        <div><span class="eyebrow">THE CREATIVE WORKSHOP</span><h2>ဝတ္ထုအသစ် ဖန်တီးရန်</h2></div>
+        <span class="section-sigil">✳</span>
+      </section>
+
+      <form id="createForm" class="panel form-panel">
+        <label for="novelTitle">ဝတ္ထုအမည် <span>Novel Title</span></label>
+        <input id="novelTitle" maxlength="200" required placeholder="ဥပမာ — မြူခိုးထဲက လျှို့ဝှက်ချက်">
+
+        <label for="novelIdea">ဇာတ်လမ်းအိုင်ဒီယာ <span>Story Idea</span></label>
+        <textarea id="novelIdea" minlength="5" maxlength="10000" required rows="5"
+          placeholder="ဇာတ်လမ်း၊ ဇာတ်ကောင်၊ ဖြစ်ရပ်နဲ့ ဇာတ်သိမ်းပုံကို ရှင်းပြပါ။ မြန်မာ သို့မဟုတ် English နဲ့ ရေးနိုင်ပါတယ်။"></textarea>
+
+        <label for="writingStyle">ကိုယ်ပိုင်ရေးဟန် / အထူးညွှန်ကြားချက် <span>Writing Style</span></label>
+        <textarea id="writingStyle" rows="3" placeholder="ဥပမာ — လျှို့ဝှက်ဆန်းကြယ်ပြီး ရုပ်ရှင်ဆန်တဲ့ ဖော်ပြချက်၊ စကားပြောသဘာဝကျ၊ အခန်းအဆုံးတိုင်းမှာ စိတ်ဝင်စားစရာထားပါ။"></textarea>
+
+        <div class="two-col">
+          <div>
+            <label for="genre">အမျိုးအစား <span>Genre</span></label>
+            <select id="genre">
+              <option value="mystery">Mystery / လျှို့ဝှက်ဆန်းကြယ်</option>
+              <option value="horror">Horror / သည်းထိတ်ရင်ဖို</option>
+              <option value="detective">Detective / စုံထောက်</option>
+              <option value="fantasy">Fantasy / စိတ်ကူးယဉ်</option>
+              <option value="romance">Romance / အချစ်ဇာတ်လမ်း</option>
+              <option value="adventure">Adventure / စွန့်စားခန်း</option>
+              <option value="sci-fi">Science Fiction / သိပ္ပံစိတ်ကူးယဉ်</option>
+              <option value="drama">Drama / ဘဝဇာတ်လမ်း</option>
+            </select>
+          </div>
+          <div>
+            <label for="targetChapters">စုစုပေါင်းအခန်း <span>Chapters</span></label>
+            <input id="targetChapters" type="number" min="1" max="200" value="10" required>
+          </div>
+        </div>
+        <div class="form-note">ⓘ AI က တစ်ကြိမ်လျှင် Backend သတ်မှတ်ထားတဲ့ အခန်းအရေအတွက်အတိုင်းသာ ရေးပါမယ်။</div>
+        <button class="primary-btn full-btn" type="submit" id="createBtn">✦ ဝတ္ထုဖန်တီးမည် <span>↗</span></button>
+        <p id="createMessage" class="message" role="status"></p>
+      </form>
+
+      <section class="section-heading compact-heading">
+        <div><span class="eyebrow">RECENT CREATIONS</span><h2>နောက်ဆုံးရေးသားထားသောဝတ္ထုများ</h2></div>
+        <button class="text-btn" data-page="library">အားလုံးကြည့်ရန် ↗</button>
+      </section>
+      <div id="recentNovels" class="novel-grid"></div>
+    </section>
+
+    <section id="page-library" class="page">
+      <section class="page-banner">
+        <span class="eyebrow">YOUR PRIVATE WORLDS</span>
+        <h1>My <em>Novels</em></h1>
+        <p>သိမ်းထားတဲ့ဝတ္ထုတွေကို ပြန်ဖွင့်၊ ဆက်ရေးပြီး PDF ထုတ်နိုင်ပါတယ်။</p>
+      </section>
+      <div class="library-toolbar">
+        <input id="novelSearch" placeholder="ဝတ္ထုအမည်ဖြင့် ရှာရန်…" aria-label="Search novels">
+        <button id="refreshNovels" class="secondary-btn">↻ ပြန်စစ်မည်</button>
+      </div>
+      <div id="libraryMessage" class="message" role="status"></div>
+      <div id="allNovels" class="novel-grid"></div>
+    </section>
+
+    <section id="page-editor" class="page">
+      <button id="backToLibrary" class="back-btn">← ဝတ္ထုစာရင်းသို့</button>
+      <div id="editorContent"></div>
+    </section>
+
+    <section id="page-settings" class="page">
+      <section class="page-banner">
+        <span class="eyebrow">CONTROL ROOM</span>
+        <h1>AI <em>Settings</em></h1>
+        <p>AI Provider နဲ့ API ချိတ်ဆက်မှုကို သတ်မှတ်ပါ။ Key များကို Browser Session ထဲမှာသာ ယာယီထားပါမယ်။</p>
+      </section>
+      <form id="settingsForm" class="panel form-panel">
+        <div class="security-note"><strong>🔐 API Key လုံခြုံရေး</strong><p>ဒီ UI က Key ကို Database ထဲမသိမ်းပါ။ Session ပြီးသွားရင် ပြန်ထည့်ရနိုင်ပါတယ်။ မိမိယုံကြည်ရတဲ့ HTTPS deployment မှာသာ အသုံးပြုပါ။</p></div>
+        <label for="provider">AI Provider <span>Provider</span></label>
+        <select id="provider">
+          <option value="openai_compatible">OpenAI-compatible (Groq အပါအဝင်)</option>
+          <option value="gemini">Google Gemini</option>
+        </select>
+
+        <div id="compatibleFields">
+          <label for="baseUrl">API Base URL <span>OpenAI-compatible</span></label>
+          <input id="baseUrl" type="url" placeholder="https://api.groq.com/openai/v1">
+          <label for="apiKey">API Key <span>Bearer token</span></label>
+          <input id="apiKey" type="password" autocomplete="off" placeholder="gsk_… သို့မဟုတ် API Key" />
+        </div>
+        <div id="geminiFields" hidden>
+          <label for="geminiKey">Gemini API Key</label>
+          <input id="geminiKey" type="password" autocomplete="off" placeholder="Gemini API Key">
+        </div>
+
+        <label for="model">Model Name <span>ဥပမာ Groq model သို့မဟုတ် Gemini model</span></label>
+        <input id="model" placeholder="openai/gpt-oss-120b" required>
+        <div class="settings-actions">
+          <button class="primary-btn" type="submit">ဆက်တင်သိမ်းမည်</button>
+          <button class="secondary-btn" type="button" id="clearSettings">Key များရှင်းမည်</button>
+        </div>
+        <p id="settingsMessage" class="message" role="status"></p>
+      </form>
+      <section class="panel status-panel">
+        <div class="section-heading"><div><span class="eyebrow">CONNECTION STATUS</span><h2>Backend Status</h2></div><span id="healthLight" class="health-light"></span></div>
+        <p id="healthMessage">စစ်ဆေးနေသည်…</p>
+        <button id="checkHealth" class="secondary-btn">Backend ပြန်စစ်မည်</button>
+      </section>
+      <p class="muted small">မှတ်ချက် — API Key ကို Browser မှာထားခြင်းက shared/public device များအတွက် မသင့်တော်ပါ။ Logout မရှိတဲ့ ဒီ App မှာ မိမိတစ်ဦးတည်းသုံးတဲ့ device ကိုသာ ဦးစားပေးပါ။</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status"></div>
+  <footer><span class="footer-mark">G.I</span><span>Crafted in the Emerald Forest</span><span>✦</span></footer>
+  <script src="/app.js" defer></script>
+</body>
+</html>
