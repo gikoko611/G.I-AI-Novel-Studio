@@ -347,6 +347,71 @@ const STORE = "gi-novel-settings-v1";
   $("provider").addEventListener("change", toggleProviderFields);
   $("checkHealth").addEventListener("click", checkHealth);
 
+
+  $("testProvider").addEventListener("click", async () => {
+    const provider = $("provider").value;
+    const model = $("model").value.trim();
+    const apiKey = $("apiKey").value.trim();
+    const geminiKey = $("geminiKey").value.trim();
+    const baseUrl = $("baseUrl").value.trim().replace(/\/+$/, "");
+    const key = provider === "gemini" ? geminiKey : apiKey;
+
+    if (!model) {
+      setMessage("settingsMessage", "Model Name ထည့်ပါ။", true);
+      return;
+    }
+    if (!key) {
+      setMessage("settingsMessage", "API Key ထည့်ပါ။", true);
+      return;
+    }
+    if (provider !== "gemini" && !/^https:\/\/.+/i.test(baseUrl)) {
+      setMessage("settingsMessage", "HTTPS Base URL မှန်ကန်စွာထည့်ပါ။", true);
+      return;
+    }
+
+    const button = $("testProvider");
+    button.disabled = true;
+    setMessage("settingsMessage", "AI Provider ကို စမ်းသပ်နေသည်…");
+
+    try {
+      const requestHeaders = { "Content-Type": "application/json" };
+      if (provider === "gemini") {
+        requestHeaders["X-Gemini-API-Key"] = geminiKey;
+      } else {
+        requestHeaders["X-AI-API-Key"] = apiKey;
+        requestHeaders["X-AI-Base-URL"] = baseUrl;
+      }
+
+      const response = await fetch(new URL("/api/test-provider", API_BASE), {
+        method: "POST",
+        headers: requestHeaders,
+        body: JSON.stringify({ provider, model })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        let detail = data.detail || data.message || "Connection failed";
+        if (typeof detail !== "string") {
+          detail = detail.message || JSON.stringify(detail);
+        }
+        throw new Error(detail);
+      }
+
+      setMessage(
+        "settingsMessage",
+        `Connection အောင်မြင်ပါပြီ · ${data.model}`
+      );
+    } catch (error) {
+      setMessage(
+        "settingsMessage",
+        "Connection မအောင်မြင်ပါ: " + error.message,
+        true
+      );
+    } finally {
+      button.disabled = false;
+    }
+  });
+
   $("settingsForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const provider = $("provider").value;

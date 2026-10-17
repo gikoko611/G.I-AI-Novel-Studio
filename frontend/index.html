@@ -144,7 +144,7 @@
         <div class="security-note"><strong>🔐 API Key လုံခြုံရေး</strong><p>ဒီ UI က Key ကို Database ထဲမသိမ်းပါ။ Session ပြီးသွားရင် ပြန်ထည့်ရနိုင်ပါတယ်။ မိမိယုံကြည်ရတဲ့ HTTPS deployment မှာသာ အသုံးပြုပါ။</p></div>
         <label for="provider">AI Provider <span>Provider</span></label>
         <select id="provider">
-          <option value="openai_compatible">OpenAI-compatible (Groq အပါအဝင်)</option>
+          <option value="openai_compatible">Custom OpenAI-compatible (ModelGo, Groq, compatible APIs)</option>
           <option value="gemini">Google Gemini</option>
         </select>
 
@@ -163,6 +163,7 @@
         <input id="model" placeholder="openai/gpt-oss-120b" required>
         <div class="settings-actions">
           <button class="primary-btn" type="submit">ဆက်တင်သိမ်းမည်</button>
+          <button class="secondary-btn" type="button" id="testProvider">Connection စမ်းမည်</button>
           <button class="secondary-btn" type="button" id="clearSettings">Key များရှင်းမည်</button>
         </div>
         <p id="settingsMessage" class="message" role="status"></p>
