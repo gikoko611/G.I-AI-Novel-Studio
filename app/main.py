@@ -202,7 +202,7 @@ async def generate_chapters(
                 with connect() as con:
                     con.execute("UPDATE novels SET status=?,last_error=?,updated_at=? WHERE id=?",
                                 (status, str(e)[:1500], now(), novel_id))
-                    con.execute("UPDATE requests SET status='failed',error=?,updated_at=? WHERE id=?",
+                    con.execute("UPDATE requests SET status='failed',error=?,updated_at=? WHERE idempotency_key=?",
                                 (str(e)[:1500], now(), key))
                 if e.quota:
                     raise HTTPException(429, {

@@ -109,7 +109,7 @@ async def generate_text(
                         },
                         {"role": "user", "content": prompt},
                     ],
-                    "temperature": 0.8,
+                    "temperature": 1,
                 },
             )
     except httpx.HTTPError as e:
