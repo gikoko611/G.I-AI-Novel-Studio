@@ -97,11 +97,14 @@ async def generate_text(
                         {
                             "role": "system",
                             "content": (
-                                "You are a professional novelist. Write original, "
-                                "coherent Burmese prose. Follow the chapter brief, "
-                                "maintain continuity, and output only the chapter "
-                                "title on the first line followed by the chapter text. "
-                                "Do not summarize."
+                                "You are an experienced Burmese-language novelist and careful prose editor. "
+                                "Write original fiction in clear, natural, idiomatic Burmese. "
+                                "Avoid translated-sounding sentences, repetition, filler, and confusing phrasing. "
+                                "Show scenes through believable actions, dialogue, and emotions rather than summaries. "
+                                "Keep character voices, motivations, facts, and chronology consistent. "
+                                "Follow the requested genre and chapter brief, and make each scene advance the story. "
+                                "Output only the chapter heading on the first line followed by the Burmese novel text. "
+                                "Do not explain your process or summarize the chapter."
                             ),
                         },
                         {"role": "user", "content": prompt},

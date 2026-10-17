@@ -45,34 +45,51 @@ def chapter_prompt(novel, chapter_no, previous):
     prior = ""
     if previous:
         last = previous[-1]
-        # Keep context bounded to avoid repeatedly sending the whole manuscript.
-        prior = f"\nPrevious chapter ending (for continuity only):\n{last['content'][-2500:]}\n"
+        prior = (
+            f"\nယခင်အခန်း၏ နောက်ဆုံးအပိုင်း (အဆက်အစပ်အတွက်သာ):\n"
+            f"{last['content'][-2500:]}\n"
+        )
+
     return f"""
-Write chapter {chapter_no} of the Burmese-language novel below.
-Novel title: {novel['title']}
-Genre: {novel['genre']}
-Genre-writing requirements:
-- Follow the selected genre consistently throughout the chapter.
-- Match the genre's atmosphere, pacing, conflict, character behavior, and scene design.
-- Mystery/detective/crime: use clues and logical reveals; avoid arbitrary solutions.
-- Horror/supernatural/dark fantasy: build atmosphere and suspense; make supernatural elements internally consistent.
-- Romance/tragic romance: develop believable emotional chemistry and relationship progression.
-- Comedy: use situational humor and distinct character voices without derailing the plot.
-- Fantasy/sci-fi/adventure: maintain consistent world rules and meaningful consequences.
-- Drama/family/historical/war/survival: keep character motivations and setting details credible.
-- Psychological thriller: use believable psychological tension and controlled reveals.
-- For a custom genre, treat the text after "custom:" as the user's requested genre.
-Core idea: {novel['idea']}
-Target length: about 900-1400 Burmese words, unless the provider's output limit requires less.
-Continuity requirements:
-- Continue from earlier chapters; do not repeat an earlier chapter.
-- Keep character names, motivations, timeline, and facts consistent.
-- Give this chapter a clear scene arc and an ending that leads naturally to the next chapter.
-- Output in Burmese.
-- First line must be a concise chapter heading beginning with "အခန်း {chapter_no}".
-- Do not include explanations about being an AI.
+သင်သည် မြန်မာဘာသာဖြင့် ဖတ်ရှုရလွယ်ကူပြီး သဘာဝကျသော ဝတ္ထုရေးသားသူဖြစ်သည်။
+
+ဝတ္ထုအမည်: {novel['title']}
+အမျိုးအစား: {novel['genre']}
+အဓိကဇာတ်လမ်းအကြောင်းအရာ: {novel['idea']}
+ရေးသားရမည့်အခန်း: {chapter_no}
+
+အောက်ပါစည်းမျဉ်းများကို တိကျစွာ လိုက်နာပါ။
+
+၁။ သဘာဝကျပြီး အဓိပ္ပာယ်ရှင်းလင်းသော မြန်မာစကားပြေကို သုံးပါ။ ဘာသာပြန်စက်ဆန်သော
+ဝါကျများ၊ အဓိပ္ပာယ်မရှင်းသော စကားစုများနှင့် အကြောင်းမဲ့ စကားလုံးထပ်ခြင်းကို ရှောင်ပါ။
+၂။ ဝါကျတိုနှင့် ဝါကျအလတ်များကို သင့်လျော်စွာ ရောနှောသုံးပါ။ စာပိုဒ်တစ်ပိုဒ်စီသည်
+အတွေးတစ်ခု၊ လုပ်ဆောင်ချက်တစ်ခု သို့မဟုတ် ခံစားချက်တစ်ခုကို ရှင်းလင်းစွာ ဖော်ပြပါ။
+၃။ ဇာတ်ကောင်များ၏ အမည်၊ ရည်ရွယ်ချက်၊ ဆက်ဆံရေး၊ အချိန်အစဉ်နှင့် ဖြစ်ရပ်အချက်အလက်များ
+ကို တစ်သမတ်တည်း ထိန်းသိမ်းပါ။
+၄။ ဇာတ်လမ်းကို အကျဉ်းချုပ်သက်သက် မရေးပါနှင့်။ မြင်ကွင်းများကို လုပ်ဆောင်ချက်၊
+သဘာဝကျသော စကားပြောခန်း၊ ပတ်ဝန်းကျင်နှင့် ယုံကြည်လက်ခံနိုင်သော ခံစားချက်များဖြင့် ဖော်ပြပါ။
+၅။ ဇာတ်ကောင်တစ်ဦးစီ၏ စကားပြောပုံကို ၎င်းတို့၏ စရိုက်၊ အခြေအနေနှင့် ဆက်ဆံရေးအလိုက်
+ကွဲပြားစေပါ။ ဇာတ်ကောင်အားလုံးကို တူညီသောပုံစံဖြင့် မပြောစေပါနှင့်။
+၆။ အကြောင်းမရှိဘဲ ဖြစ်ရပ်များ ရုတ်တရက် မပြောင်းစေရ။ အရေးကြီးသော ဆုံးဖြတ်ချက်များနှင့်
+ဇာတ်လမ်းအလှည့်အပြောင်းများတွင် ယုတ္တိရှိသော အကြောင်းပြချက် ရှိရမည်။
+၇။ ယခင်အခန်းမှ စာပိုဒ်များနှင့် ဖြစ်ရပ်များကို ထပ်မကူးပါနှင့်။ ဇာတ်လမ်းကို ရှေ့ဆက်တိုးတက်စေပါ။
+၈။ ရွေးချယ်ထားသော အမျိုးအစားနှင့် ကိုက်ညီပါစေ။ စုံထောက်ဝတ္ထုတွင် သဲလွန်စနှင့် ယုတ္တိကို
+ထိန်းသိမ်းပါ။ သရဲဝတ္ထုတွင် တဖြည်းဖြည်းတင်းမာမှု တည်ဆောက်ပါ။ အချစ်ဝတ္ထုတွင်
+ခံစားချက်နှင့် ဆက်ဆံရေးတိုးတက်မှုကို ယုံကြည်လက်ခံနိုင်အောင် ဖော်ပြပါ။
+၉။ အခန်းတစ်ခန်းတွင် အစ၊ အလယ်၊ အဆုံး ရှိရမည်။ အဆုံးတွင် နောက်အခန်းကို ဆက်ဖတ်ချင်စေမည့်
+သဘာဝကျသော ပြဿနာ သို့မဟုတ် မေးခွန်းတစ်ခု ချန်ထားပါ။
+၁၀။ အဓိပ္ပာယ်မရှိသော စကားများဖြင့် စာရှည်အောင် မလုပ်ပါနှင့်။ ဇာတ်လမ်းအတွက် အရေးမပါသော
+အကြောင်းအရာများ၊ ထပ်နေသော ရှင်းလင်းချက်များနှင့် အလွန်အကျွံ ကဗျာဆန်သော အသုံးအနှုန်းများကို ရှောင်ပါ။
+၁၁။ မြန်မာဘာသာဖြင့်သာ ရေးပါ။ AI အကြောင်း၊ ရေးသားပုံအကြောင်း ရှင်းလင်းချက်၊
+အခန်းအကျဉ်းချုပ် သို့မဟုတ် စာဖတ်သူထံသို့ မှတ်ချက် မထည့်ပါနှင့်။
+၁၂။ ပထမစာကြောင်းကို "အခန်း {chapter_no}" ဖြင့် စတင်သော အခန်းခေါင်းစဉ်အဖြစ် ရေးပါ။
+၁၃။ ဖြစ်နိုင်လျှင် အခန်းတစ်ခန်းလျှင် မြန်မာစကားလုံး ၉၀၀ မှ ၁၄၀၀ ခန့် ရေးပါ။
+အရည်အသွေးနှင့် ဇာတ်လမ်းအဆက်အစပ်ကို စကားလုံးအရေအတွက်ထက် ဦးစားပေးပါ။
+
 {prior}
+ယခုအခန်းကို တိုက်ရိုက်ရေးသားပါ။ ခေါင်းစဉ်ပြီးနောက် ဝတ္ထုစာသားကိုသာ ထုတ်ပါ။
 """.strip()
+
 
 @app.get("/api/health")
 def health():
