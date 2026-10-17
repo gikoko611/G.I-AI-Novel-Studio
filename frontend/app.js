@@ -2,7 +2,8 @@
   "use strict";
 
   const $ = (id) => document.getElementById(id);
-  const STORE = "gi-novel-settings-v1";
+  const API_BASE = "https://gi-ai-novel-studio-api.onrender.com";
+const STORE = "gi-novel-settings-v1";
   let novels = [];
   let currentNovel = null;
   let toastTimer;
@@ -37,7 +38,7 @@
   }
 
   async function api(path, options = {}) {
-    const response = await fetch(path, {
+    const response = await fetch(new URL(path, API_BASE), {
       ...options,
       headers: headers(options.headers || {})
     });
