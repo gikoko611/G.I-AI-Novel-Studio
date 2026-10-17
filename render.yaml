@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: gi-ai-novel-studio-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_PATH
+        value: /var/data/novel_studio.db
+      - key: OUTPUT_DIR
+        value: /var/data/exports
+      - key: AI_PROVIDER
+        value: openai_compatible
+      - key: AI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: AI_MODEL
+        value: openai/gpt-oss-120b
+      - key: AI_API_KEY
+        sync: false
+    # Add a Render persistent disk mounted at /var/data in the dashboard.
