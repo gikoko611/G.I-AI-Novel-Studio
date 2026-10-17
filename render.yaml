@@ -9,8 +9,6 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
-      - key: DATABASE_PATH
-        value: /var/data/novel_studio.db
       - key: OUTPUT_DIR
         value: /var/data/exports
       - key: AI_PROVIDER
