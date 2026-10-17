@@ -96,6 +96,11 @@ const STORE = "gi-novel-settings-v1";
     return Math.min(100, Math.round(chapterCount(novel) / target * 100));
   }
 
+  function displayGenre(genre) {
+    const value = String(genre || "Novel");
+    return value.startsWith("custom:") ? value.slice(7) : value;
+  }
+
   function coverSymbol(genre) {
     return ({
       horror: "☽", mystery: "◉", detective: "⌕", fantasy: "✧",
@@ -121,7 +126,7 @@ const STORE = "gi-novel-settings-v1";
             <span class="status-chip">${esc(statusText(novel.status))}</span>
           </div>
           <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <div class="card-meta"><span>${pct}% complete</span><span>${esc(novel.genre || "Novel")}</span></div>
+          <div class="card-meta"><span>${pct}% complete</span><span>${esc(displayGenre(novel.genre))}</span></div>
           <div class="card-actions">
             <button class="secondary-btn" data-open="${id}">ဖွင့်ရန် ↗</button>
             <button class="secondary-btn" data-pdf="${id}" ${count ? "" : "disabled"}>PDF ↓</button>
@@ -195,7 +200,7 @@ const STORE = "gi-novel-settings-v1";
     const pct = progress(n);
     $("editorContent").innerHTML = `
       <section class="editor-head">
-        <span class="eyebrow">YOUR STORY · ${esc(n.genre || "NOVEL")}</span>
+        <span class="eyebrow">YOUR STORY · ${esc(displayGenre(n.genre).toUpperCase())}</span>
         <h1>${esc(n.title)}</h1>
         <p>${esc(n.idea || "")}</p>
         <div class="card-meta"><span>${count}/${Number(n.target_chapters || 0)} chapters</span><span class="status-chip">${esc(statusText(n.status))}</span></div>
@@ -374,6 +379,15 @@ const STORE = "gi-novel-settings-v1";
     toast("Key များ ရှင်းပြီးပါပြီ။");
   });
 
+  $("genre").addEventListener("change", () => {
+    const custom = $("customGenre");
+    if (!custom) return;
+    const visible = $("genre").value === "custom";
+    custom.style.display = visible ? "block" : "none";
+    custom.required = visible;
+    if (!visible) custom.value = "";
+  });
+
   $("createForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const s = getSettings();
@@ -385,7 +399,13 @@ const STORE = "gi-novel-settings-v1";
     const title = $("novelTitle").value.trim();
     const idea = $("novelIdea").value.trim();
     const style = $("writingStyle").value.trim();
-    const genre = $("genre").value;
+    const selectedGenre = $("genre").value;
+    const customGenre = $("customGenre")?.value.trim() || "";
+    if (selectedGenre === "custom" && !customGenre) {
+      return setMessage("createMessage", "ကိုယ်ပိုင်ဝတ္ထုအမျိုးအစားကို ရေးထည့်ပါ။", true);
+    }
+    const genre = selectedGenre === "custom"
+      ? `custom:${customGenre}` : selectedGenre;
     const target = Number($("targetChapters").value);
     if (!title || idea.length < 5 || target < 1 || target > 200) {
       return setMessage("createMessage", "ဝတ္ထုအမည်၊ အိုင်ဒီယာနဲ့ အခန်းအရေအတွက်ကို ပြန်စစ်ပါ။", true);
@@ -406,6 +426,12 @@ const STORE = "gi-novel-settings-v1";
         })
       });
       $("createForm").reset();
+      const customGenreInput = $("customGenre");
+      if (customGenreInput) {
+        customGenreInput.value = "";
+        customGenreInput.required = false;
+        customGenreInput.style.display = "none";
+      }
       $("targetChapters").value = 10;
       await loadNovels();
       toast("ဝတ္ထုအသစ်ကို ဖန်တီးပြီးပါပြီ။");

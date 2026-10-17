@@ -51,6 +51,17 @@ def chapter_prompt(novel, chapter_no, previous):
 Write chapter {chapter_no} of the Burmese-language novel below.
 Novel title: {novel['title']}
 Genre: {novel['genre']}
+Genre-writing requirements:
+- Follow the selected genre consistently throughout the chapter.
+- Match the genre's atmosphere, pacing, conflict, character behavior, and scene design.
+- Mystery/detective/crime: use clues and logical reveals; avoid arbitrary solutions.
+- Horror/supernatural/dark fantasy: build atmosphere and suspense; make supernatural elements internally consistent.
+- Romance/tragic romance: develop believable emotional chemistry and relationship progression.
+- Comedy: use situational humor and distinct character voices without derailing the plot.
+- Fantasy/sci-fi/adventure: maintain consistent world rules and meaningful consequences.
+- Drama/family/historical/war/survival: keep character motivations and setting details credible.
+- Psychological thriller: use believable psychological tension and controlled reveals.
+- For a custom genre, treat the text after "custom:" as the user's requested genre.
 Core idea: {novel['idea']}
 Target length: about 900-1400 Burmese words, unless the provider's output limit requires less.
 Continuity requirements:
